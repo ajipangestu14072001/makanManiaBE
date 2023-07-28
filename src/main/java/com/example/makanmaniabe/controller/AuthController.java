@@ -13,6 +13,7 @@ import com.example.makanmaniabe.repository.UserRepository;
 import com.example.makanmaniabe.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,9 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -107,6 +106,21 @@ public class AuthController {
         userRepository.save(user);
 
         ApiResponse<User> response = new ApiResponse<>(200, "User registered successfully!", user);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<ApiResponse<User>> getUserProfile(@PathVariable UUID id) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(404, "User not found", null));
+        }
+
+        User user = userOptional.get();
+        ApiResponse<User> response = new ApiResponse<>(200, "User profile retrieved successfully", user);
 
         return ResponseEntity.ok(response);
     }
